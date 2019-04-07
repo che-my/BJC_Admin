@@ -1,0 +1,57 @@
+<!-- ================== BEGIN BASE JS ================== -->
+<script src="__CDN__/assets/plugins/jquery/jquery-3.3.1.min.js"></script>
+<script src="__CDN__/assets/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script src="__CDN__/assets/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!--[if lt IE 9]>
+    <script src=".__CDN__/assets/crossbrowserjs/html5shiv.js"></script>
+    <script src="__CDN__/assets/crossbrowserjs/respond.min.js"></script>
+    <script src="__CDN__/assets/crossbrowserjs/excanvas.min.js"></script>
+<![endif]-->
+
+<script src="__CDN__/assets/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="__CDN__/assets/plugins/js-cookie/js.cookie.js"></script>
+<script src="__CDN__/assets/js/theme/default.min.js"></script>
+<script src="__CDN__/assets/js/apps.js"></script>
+<!-- ================== END BASE JS ================== -->
+<script>
+	$(document).ready(function() {
+        App.init();
+        // 进入全屏：
+        function entryFullScreen() {
+            var docE = document.documentElement;
+            if (docE.requestFullScreen) {
+                docE.requestFullScreen();
+            } else if (docE.mozRequestFullScreen) {
+                docE.mozRequestFullScreen();
+            } else if (docE.webkitRequestFullScreen) {
+                docE.webkitRequestFullScreen();
+            }
+        }
+
+        // 退出全屏
+        function exitFullScreen() {
+            var docE = document;
+            if (docE.exitFullscreen) {
+                docE.exitFullscreen();
+            } else if (docE.mozCancelFullScreen) {
+                docE.mozCancelFullScreen();
+            } else if (docE.webkitCancelFullScreen) {
+                docE.webkitCancelFullScreen();
+            }
+        }
+        // 全屏切换
+        $('#FullScreen').bind('click', function() {
+            var fullscreenElement =
+                document.fullscreenElement ||
+                document.mozFullScreenElement ||
+                document.webkitFullscreenElement;
+            if (fullscreenElement == null) {
+                entryFullScreen();
+            } else {
+                exitFullScreen();
+            }
+        });
+		
+	});
+</script>

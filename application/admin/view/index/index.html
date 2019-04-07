@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<!--[if IE 8]> <html lang="en" class="ie8"> <![endif]-->
+<html lang="en">
+<!--<![endif]-->
+<head>	 
+	{include file="common/meta" /}
+</head>
+<body id="main-body">
+	<!-- 页面主体内容开始 -->
+	<div id="page-container" class="fade page-sidebar-fixed page-header-fixed">
+		<!-- 公共头部开始 -->
+		{include file="common/header" /}	
+		<!-- 公共头部结束 -->
+		<!-- tab_menu -->
+		{include file="common/tab_menu" /}
+		<!-- tab_menu -->
+		<!-- 左侧菜单栏开始 -->
+		{include file="common/menu" /}	
+		<!-- 左侧菜单栏结束 -->
+		<!-- 正文页面开头 -->
+		<div id="content" class="content tab-content tab-addtabs height-full">
+			<div role="tabpanel" data-id="1" class="tab-pane active" id="con_1">
+				<iframe class="tab-iframe" scrolling="no" src="dash1.html?addtabs=1" width="100%" height="100%" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling-x="no" scrolling-y="auto" allowtransparency="yes"></iframe>
+			</div>
+		</div>
+		<!-- 正文页面结束 -->
+		<!-- begin theme-panel -->
+		{include file="common/setting" /}
+		<!-- end theme-panel -->
+	</div>
+	<!-- 页面主体内容结束 -->
+</body>
+{include file="common/script" /}
+<script>
+	$(function(){
+		localStorage.setItem('tabs_id','');
+		var childPageH = $('#content').find('.tab-pane').height();
+		getiframeheight(childPageH)
+		$(".sub-menu li").on("click", "a", function() {
+			var sId = $(this).data("id"); //获取data-id的值
+			var url = $(this).data("url"); //获取data-id的值
+			var text = $(this).html();
+			var hasId = findiframeId(sId);
+			if(hasId==null&&$("#content").children().length<=11){
+				var tabs_id = localStorage.getItem('tabs_id');
+				if(tabs_id){
+					tabs_id = JSON.parse(tabs_id);		
+					if($.inArray(sId, tabs_id)==-1&&$("#content").children().length>14){
+						alert("打开的窗口不能超过15个");
+						return false;
+					}else{
+						tabs_id.push(sId);
+						localStorage.setItem('tabs_id', JSON.stringify(tabs_id));
+					}
+				}else{
+					var ids = [];
+					ids.push(sId);
+					localStorage.setItem('tabs_id',JSON.stringify(ids));
+				}
+				var tapheml =   '<li id="sub_'+sId+'" class="has-sub active" data-id="'+sId+'">'+
+            				    '	<a href="javascript:;">'+
+								'		<span>'+text+'</span>'+
+								'	    <i class="fa fa-window-close closed closed_'+sId+'" data-id="'+sId+'"></i>'+
+								'	</a>'+     
+								'</li>';
+				$("#nav-menus .has-sub").last().after(tapheml);
+				opend(1);//初始化控制台展示
+				closed(sId);//点击关闭icon,关闭iframe
+				opend(sId);//点击tab菜单切换iframe
+				$("#sub_"+sId).siblings().removeClass('active');
+				var iframehtml = '<div role="tabpanel" data-id="'+sId+'" class="tab-pane active" id="con_'+sId+'">'+
+							'	<iframe class="tab-iframe" scrolling="no" src="'+url+'" width="100%" height="100%" frameborder="no" border="0" marginwidth="0" marginheight="0" scrolling-x="no" scrolling-y="auto" allowtransparency="yes"></iframe>'
+							'</div>';
+				$("#content").append(iframehtml);
+				$("#con_"+sId).siblings().removeClass('active');
+				var childPageH = $('#content').find('.tab-pane').height();
+				getiframeheight(childPageH);
+			}else{
+				$("#sub_"+sId).addClass('active').siblings().removeClass('active');
+				$("#con_"+sId).addClass('active').siblings().removeClass('active');
+			}
+			if($("#content").children().length>7&&sId<7){
+				$(".menu-control.menu-control-left").children().trigger('click');
+			}
+			handlePageLoadMenuFocus();
+		});
+		function getiframeheight(childPageH){
+			$('.tab-iframe').each(function(){
+				$(this).height(childPageH);
+			});
+		}
+		function closed(sId){
+			$(".closed_"+sId).on('click',function(e){
+				$(this).parents('li').remove();
+				$("#con_"+sId).remove();
+				var k = $("#content").children().length;
+				$("#nav-menus .has-sub").each(function(){
+					var active = $(this).hasClass('active');
+					if(active){
+						$("#con_"+$(this).data("id")).addClass('active').siblings().removeClass('active');
+					}else{
+						k--;
+					}
+				});
+				if(k==0){
+					$("#sub_1").addClass('active').siblings().removeClass('active');
+					$("#con_1").addClass('active').siblings().removeClass('active');
+					$(".menu-control.menu-control-left").children().trigger('click');
+				}
+			});
+		}
+		function opend(sId){
+			$("#sub_"+sId).on('click',function(e){
+				$(this).addClass('active').siblings().removeClass('active');
+				$("#con_"+sId).addClass('active').siblings().removeClass('active');
+			});
+		}
+		function findiframeId(pageId) {
+			var $ele = null;
+			$("#content").find("div.tab-pane").each(function () {
+				var $div = $(this);
+				if ($div.data("id") == pageId) {
+					$ele = $div;
+					return false;//退出循环
+				}
+			});
+			return $ele;
+		}
+		// handle page load active menu focus
+		function handlePageLoadMenuFocus() {
+			var targetMenu = $('.top-menu .nav');
+			var targetList = $('.top-menu .nav > li');
+			var targetActiveList = $('.top-menu .nav > li.active');
+			var targetContainer = $('.top-menu');
+			var targetCss = ($('body').hasClass('rtl-mode')) ? 'margin-right' : 'margin-left';
+			var marginLeft = parseInt($(targetMenu).css(targetCss));  
+			var viewWidth = $(targetContainer).width() - 128;
+			var prevWidth = $('.top-menu .nav > li.active').width();
+			var speed = 0;
+			var fullWidth = 0;
+
+			$(targetActiveList).prevAll().each(function() {
+				prevWidth += $(this).width();
+			});
+
+			$(targetList).each(function() {
+				if (!$(this).hasClass('menu-control')) {
+					fullWidth += $(this).width();
+				}
+			});
+
+			if (prevWidth >= viewWidth) {
+				var finalScrollWidth = prevWidth - viewWidth + 128;
+				if (!$('body').hasClass('rtl-mode')) { 
+					$(targetMenu).animate({ marginLeft: '-' + finalScrollWidth + 'px'}, speed);
+				} else {
+					$(targetMenu).animate({ marginRight: '-' + finalScrollWidth + 'px'}, speed);
+				}
+			}
+
+			if (prevWidth != fullWidth && fullWidth >= viewWidth) {
+				$(targetMenu).find('.menu-control.menu-control-right').addClass('show');
+			} else {
+				$(targetMenu).find('.menu-control.menu-control-right').removeClass('show');
+			}
+
+			if (prevWidth >= viewWidth && fullWidth >= viewWidth) {
+				$(targetMenu).find('.menu-control.menu-control-left').addClass('show');
+			} else {
+				$(targetMenu).find('.menu-control.menu-control-left').removeClass('show');
+			}
+		}
+	});
+</script>
+</html>
+
+
+
